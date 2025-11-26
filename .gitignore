@@ -1,0 +1,4 @@
+ocr-api-output/
+*.csv
+.DS_Store
+
