@@ -1,0 +1,12 @@
+{
+  "@context": "http://iiif.io/api/presentation/3/context.json",
+  "id": "https://dlg.usg.edu/record/gyca_mmap_gen-103/presentation/manifest.json",
+  "type": "Manifest",
+  "label": {
+    "en": [
+      "Map of Athens, UGA Map and Government Information Library Map Collection, University of Georgia. Map and Government Information Library"
+    ]
+  },
+  "rights": "http://rightsstatements.org/vocab/NoC-US/1.0/",
+  "items": []
+}
