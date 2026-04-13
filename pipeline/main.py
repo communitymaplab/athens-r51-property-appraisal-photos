@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import csv
 import json
 import os
 from pathlib import Path
@@ -59,11 +60,6 @@ def build_parser() -> ArgumentParser:
         "--dataset-dir",
         default=None,
         help="Root directory containing scanned page images. Default: data/<dataset-name>/raw in this repo.",
-    )
-    parser.add_argument(
-        "--out-csv",
-        default="stage1_3_output.csv",
-        help="Output CSV path for stage 1-3 results.",
     )
     parser.add_argument(
         "--dataset-name",
@@ -131,6 +127,14 @@ def build_parser() -> ArgumentParser:
         help=(
             "Stage 2: only apply the top-line `PARCEL NO` rule for photo sheets; "
             "if not matched, classify as `other` and skip all other Stage 2 checks."
+        ),
+    )
+    parser.add_argument(
+        "--out-processed-photos-csv",
+        default=None,
+        help=(
+            "Stage 5: write one CSV row per saved crop (path under processed/, block, parcel). "
+            "Default: data/<dataset-name>/processed_photos.csv in this repo."
         ),
     )
     return parser
@@ -343,7 +347,7 @@ def build_block_constraint_lookup(block_constraints: pd.DataFrame) -> dict[str, 
     return lookup
 
 
-def run_stage1_to_stage3(
+def run_full_pipeline(
     dataset_dir: str,
     cache_dir: str,
     roboflow_cache_dir: str,
@@ -358,6 +362,7 @@ def run_stage1_to_stage3(
     force_no_ocr: bool,
     use_regex: bool,
     only_classify_photo_sheets: bool,
+    processed_photos_csv: str | Path | None = None,
 ) -> pd.DataFrame:
     config = default_config_from_path(dataset_dir)
     artifacts: list[PageArtifact] = []
@@ -660,31 +665,64 @@ def run_stage1_to_stage3(
     stage5_crop_count = 0
     print(f"Stage 5: processed (crops) directory {processed_root.resolve()}")
 
-    for artifact in artifacts:
-        regions = artifact.photo_regions or []
-        if not regions and artifact.classification != "loose_photo":
-            artifact.photo_crop_paths = []
-            continue
-        relative_path = str(artifact.image_path.relative_to(config.dataset_dir))
-        page_cache_key = sanitize_cache_key(relative_path)
-        abs_paths = crop_and_save_regions(
-            artifact.image_path,
-            regions,
-            output_dir=processed_root,
-            cache_key=page_cache_key,
-            extracted_id=artifact.extracted_id
-            if isinstance(artifact.extracted_id, dict)
-            else None,
-            block_folder_name=artifact.image_path.parent.name,
-            bbox_margin=bbox_margin,
-            classification=artifact.classification,
+    photos_csv_path = Path(processed_photos_csv) if processed_photos_csv else None
+    photos_csv_file = None
+    photos_row_writer = None
+    if photos_csv_path is not None:
+        photos_csv_path.parent.mkdir(parents=True, exist_ok=True)
+        photos_csv_file = photos_csv_path.open("w", newline="", encoding="utf-8")
+        photos_row_writer = csv.writer(photos_csv_file)
+        photos_row_writer.writerow(["path", "block", "parcel"])
+
+    def on_processed_photo_saved(
+        rel: str, block: str | None, parcel: str | None
+    ) -> None:
+        if photos_row_writer is None or photos_csv_file is None:
+            return
+        photos_row_writer.writerow(
+            [
+                rel,
+                block if block is not None else "",
+                parcel if parcel is not None else "",
+            ]
         )
-        artifact.photo_crop_paths = [
-            str(p.relative_to(processed_root)) for p in abs_paths
-        ]
-        stage5_crop_count += len(abs_paths)
+        photos_csv_file.flush()
+
+    try:
+        for artifact in artifacts:
+            regions = artifact.photo_regions or []
+            if not regions and artifact.classification != "loose_photo":
+                artifact.photo_crop_paths = []
+                continue
+            relative_path = str(artifact.image_path.relative_to(config.dataset_dir))
+            page_cache_key = sanitize_cache_key(relative_path)
+            abs_paths = crop_and_save_regions(
+                artifact.image_path,
+                regions,
+                output_dir=processed_root,
+                cache_key=page_cache_key,
+                extracted_id=artifact.extracted_id
+                if isinstance(artifact.extracted_id, dict)
+                else None,
+                page_block_number=artifact.block_number,
+                block_folder_name=artifact.image_path.parent.name,
+                bbox_margin=bbox_margin,
+                classification=artifact.classification,
+                on_processed_photo_saved=on_processed_photo_saved
+                if photos_csv_file
+                else None,
+            )
+            artifact.photo_crop_paths = [
+                str(p.relative_to(processed_root)) for p in abs_paths
+            ]
+            stage5_crop_count += len(abs_paths)
+    finally:
+        if photos_csv_file is not None:
+            photos_csv_file.close()
 
     print(f"Stage 5: wrote {stage5_crop_count} crop image(s)")
+    if photos_csv_path is not None:
+        print(f"Stage 5: processed photos CSV {photos_csv_path.resolve()}")
 
     records: list[dict[str, object]] = []
     for artifact in artifacts:
@@ -718,7 +756,15 @@ def main() -> None:
         PROJECT_ROOT / "data" / args.dataset_name / "roboflow_workflow"
     )
     processed_dir = str(PROJECT_ROOT / "data" / args.dataset_name / "processed")
-    df = run_stage1_to_stage3(
+    if args.out_processed_photos_csv:
+        processed_photos_csv: str | Path = Path(
+            args.out_processed_photos_csv
+        ).expanduser()
+    else:
+        processed_photos_csv = (
+            PROJECT_ROOT / "data" / args.dataset_name / "processed_photos.csv"
+        )
+    df = run_full_pipeline(
         dataset_dir=dataset_dir,
         cache_dir=cache_dir,
         roboflow_cache_dir=roboflow_cache_dir,
@@ -733,8 +779,9 @@ def main() -> None:
         force_no_ocr=args.force_no_ocr,
         use_regex=args.use_regex,
         only_classify_photo_sheets=args.only_classify_photo_sheets,
+        processed_photos_csv=processed_photos_csv,
     )
-    out_path = Path(args.out_csv)
+    out_path = PROJECT_ROOT / "data" / args.dataset_name / "pipeline_output.csv"
     df.to_csv(out_path, index=False)
     print(f"Wrote {len(df)} rows to {out_path}")
 

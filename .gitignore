@@ -3,7 +3,7 @@
 .DS_Store
 .pyc
 .idea
-.vscode/*
+pipeline/.vscode/*
 __pycache__/*
 *.pyc
 *.env
@@ -12,3 +12,4 @@ test*.txt
 # data/*/roboflow_workflow/*
 # data/*/stage3_claude/*
 *.DS_Store
+.vscode/settings.json

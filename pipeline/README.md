@@ -76,7 +76,7 @@ Optional: put secrets in a **`.env`** file in the project root (`python-dotenv` 
 
 ```bash
 python3 main.py \
-  --dataset-dir "/Users/liam/Documents/R-51 appraisal reports_files/Bradberry appraisals SUBSETTEST2" \
+  --dataset-dir "/Users/liam/Documents/R-51 appraisal reports_files/Bradberry appraisals 1962" \
   --dataset-name "Bradberry appraisals 1962"
 ```
 
@@ -112,3 +112,8 @@ Other useful flags:
 ## Pipeline output columns
 
 The CSV includes `image_path`, `file_name`, `block_number`, `classification`, `extracted_id`, `photo_detections` (JSON), and `photo_crops` (JSON paths under `processed/`).
+
+## Manual errata
+
+- Delete `/pipeline/data/Bradberry appraisals 1962/processed/B5/B5_P15__photo1.jpg` as it's not a real photo - placeholder image due to image 57 being broken on DLG here `https://dlg.usg.edu/record/guan_1633_055-006?canvas=56&x=400&y=400&w=1946`
+- Manually rename `/pipeline/data/Bradberry appraisals 1962/processed/B8/B8__67_jpg__photo1.jpg` to `B8_P12__photo4.jpg` 

@@ -3,8 +3,11 @@ from __future__ import annotations
 import math
 import re
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+OnProcessedPhotoSaved = Callable[[str, str | None, str | None], None]
 
 from PIL import Image
 
@@ -159,6 +162,27 @@ def _filename_core_from_block_parcel(block: str, parcel: Any) -> str:
     return f"B{block}_{p_seg}"
 
 
+def _row_for_processed_photo(
+    dest: Path,
+    output_dir: Path,
+    extracted_id: dict[str, Any] | None,
+    page_block_number: str | None,
+) -> tuple[str, str | None, str | None]:
+    rel = dest.relative_to(output_dir).as_posix()
+    if extracted_id is not None:
+        b = extracted_id.get("block")
+        p = extracted_id.get("parcel")
+        block_s = str(b).strip() if b is not None and str(b).strip() else None
+        parcel_s = (
+            ",".join(_split_parcel_field(p))
+            if p is not None and str(p).strip()
+            else None
+        )
+        return rel, block_s, parcel_s
+    # No extracted_id dict (cache_key filenames): block comes from the page artifact.
+    return rel, page_block_number, None
+
+
 def _allocate_photo_dest(
     out_dir: Path,
     filename_core: str,
@@ -183,9 +207,11 @@ def crop_and_save_regions(
     output_dir: Path,
     cache_key: str,
     extracted_id: dict[str, Any] | None = None,
+    page_block_number: str | None = None,
     block_folder_name: str = "unknown_block",
     bbox_margin: float = 0.0,
     classification: str | None = None,
+    on_processed_photo_saved: OnProcessedPhotoSaved | None = None,
 ) -> list[Path]:
     """
     Crop detected regions and save as JPEGs under processed/<block_folder>/.
@@ -205,6 +231,12 @@ def crop_and_save_regions(
 
     ``bbox_margin``: expand each crop by this many pixels on every side before
     clamping to the image (nested dedupe still uses margin=0).
+
+    ``on_processed_photo_saved``: called with ``(path, block, parcel)`` for each
+    saved file; ``path`` is relative to ``output_dir`` (processed root).
+
+    ``page_block_number``: block from the scan layout (``PageArtifact.block_number``);
+    used for the CSV row when ``extracted_id`` is ``None``.
     """
     if extracted_id is not None:
         block = extracted_id.get("block")
@@ -226,6 +258,12 @@ def crop_and_save_regions(
         dest = _allocate_photo_dest(out_dir, filename_core, 1)
         shutil.copy2(image_path, dest)
         saved.append(dest)
+        if on_processed_photo_saved is not None:
+            on_processed_photo_saved(
+                *_row_for_processed_photo(
+                    dest, output_dir, extracted_id, page_block_number
+                )
+            )
     else:
         regions = drop_nested_detection_regions(regions)
         with Image.open(image_path) as im:
@@ -251,6 +289,12 @@ def crop_and_save_regions(
                 dest = _allocate_photo_dest(out_dir, filename_core, i)
                 crop.save(dest, format="JPEG", quality=95)
                 saved.append(dest)
+                if on_processed_photo_saved is not None:
+                    on_processed_photo_saved(
+                        *_row_for_processed_photo(
+                            dest, output_dir, extracted_id, page_block_number
+                        )
+                    )
 
     n = len(saved)
     if n == 0:
