@@ -1,0 +1,24 @@
+{
+  "input_hash": "87ff36eae86a6e0592f02fa379587d34a28aad53978a372de1e3e6400eace926",
+  "workspace_name": "liams-workspace-r51",
+  "workflow_id": "find-photos",
+  "api_url": "https://serverless.roboflow.com",
+  "image_path": "/Users/liam/Documents/R-51 appraisal reports_files/Bradberry appraisals 1962/B14/31.jpg",
+  "relative_path_hint": "/Users/liam/Documents/R-51 appraisal reports_files/Bradberry appraisals 1962/B14/31.jpg",
+  "page_type": "appraisal_form",
+  "visualization_pngs": [
+    "visualizations/B14__31_jpg.jpg"
+  ],
+  "raw_result": [
+    {
+      "predictions": {
+        "image": {
+          "width": null,
+          "height": null
+        },
+        "predictions": []
+      }
+    }
+  ],
+  "regions": []
+}

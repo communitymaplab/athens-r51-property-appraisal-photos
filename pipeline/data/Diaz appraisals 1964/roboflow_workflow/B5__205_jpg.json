@@ -1,0 +1,25 @@
+{
+  "input_hash": "3eea5f82a6a0bfe425ac73e46d615d13b86f10312938fe827c5c764565b9eefb",
+  "workspace_name": "liams-workspace-r51",
+  "workflow_id": "find-photos",
+  "api_url": "https://serverless.roboflow.com",
+  "logical_image_key": "B5/205.jpg",
+  "image_path": "/Users/liam/Documents/R-51 appraisal reports_files/Diaz appraisals 1964/B5/205.jpg",
+  "relative_path_hint": "/Users/liam/Documents/R-51 appraisal reports_files/Diaz appraisals 1964/B5/205.jpg",
+  "page_type": "photo_sheet",
+  "visualization_pngs": [
+    "visualizations/B5__205_jpg.jpg"
+  ],
+  "raw_result": [
+    {
+      "predictions": {
+        "image": {
+          "width": null,
+          "height": null
+        },
+        "predictions": []
+      }
+    }
+  ],
+  "regions": []
+}

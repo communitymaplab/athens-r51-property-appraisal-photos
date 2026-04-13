@@ -1,0 +1,32 @@
+{
+  "chunk_index": 1,
+  "batch_id": "msgbatch_0183s3SJSWVXGm6jqkTu3C1d",
+  "request_count": 7,
+  "custom_ids": [
+    "stage3__B15__1_jpg",
+    "stage3__B15__8_jpg",
+    "stage3__B15__9_jpg",
+    "stage3__B15__10_jpg",
+    "stage3__B15__11_jpg",
+    "stage3__B15__12_jpg",
+    "stage3__B15__13_jpg"
+  ],
+  "submitted": {
+    "id": "msgbatch_0183s3SJSWVXGm6jqkTu3C1d",
+    "type": "message_batch",
+    "processing_status": "in_progress",
+    "request_counts": {
+      "processing": 7,
+      "succeeded": 0,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    },
+    "ended_at": null,
+    "created_at": "2026-04-05T21:10:48.153661+00:00",
+    "expires_at": "2026-04-06T21:10:48.153661+00:00",
+    "archived_at": null,
+    "cancel_initiated_at": null,
+    "results_url": null
+  }
+}
