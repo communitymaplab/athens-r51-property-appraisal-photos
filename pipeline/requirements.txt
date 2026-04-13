@@ -1,0 +1,6 @@
+pandas
+Pillow
+requests
+inference-sdk
+azure-ai-documentintelligence
+azure-core

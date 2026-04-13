@@ -1,0 +1,49 @@
+{
+  "cache_key": "B6__29_jpg",
+  "custom_id": "stage3__B6__29_jpg",
+  "relative_path": "B6/29.jpg",
+  "image_path": "/Users/liam/Documents/R-51 appraisal reports_files/Bradberry appraisals SUBSETTEST3/B6/29.jpg",
+  "input_hash": "f9f7e66171d0293229712a8fa0e91e3e9ec71b5409e5a0ca207847c73a7adef5",
+  "model": "claude-sonnet-4-6",
+  "prompt": "Extract block and parcel numbers from this OCR text of a property appraisal\npage. Rules:\n- \"Blk\", \"BLK\", \"BCK\", \"BIK\", \"BIR\", \"Bek\", \"Blb\", \"BIBER\", \"B&k\" etc.\n  all mean \"Block\"\n- Parcel identifiers are usually numeric, but in rare valid cases may include a\n  trailing letter, such as \"2A\", \"4A\", or \"6B\". These are valid parcel\n  identifiers, not sub-parcels.\n- OCR may confuse letters and digits. Common confusions include \"A\" <-> \"4\",\n  \"B\" <-> \"8\", \"I\" <-> \"1\", and \"O\" <-> \"0\".\n- If a token like \"24\" is implausible in sequence, consider whether it may\n  actually be \"2A\" or another parcel identifier with a trailing letter.\n- Descriptive qualifiers like \"Rear\" or unrelated labels \n(\"Bldg A\" or letters like \"A\", \"B\", \"C\") are not parcel\n  identifiers unless clearly attached as part of the parcel notation.\n- Ignore dates, \"SUMMARY SHEET\", \"House\", \"Building\" labels\n- Some entries have multiple parcels e.g. \"5 & 4\" — list them all\n\nThe correct block number is given below. Since you are given the correct block number,\nyou may use this information to help you extract the correct block and parcel numbers\nfrom unclear OCR text containing ambiguous numbers or weakly structured text.\nAlways return the correct block number, even if it conflicts with the block number in the OCR text.\n\nThe only possible parcel numbers for this block are given below. Do not return a parcel number that is not in the list,\nif the OCR text is ambiguous, return the most likely parcel number from the list. If the OCR text indicates a\nparcel number not in the list, return the most likely parcel number from the list.\n\nUse neighboring page text only as contextual evidence. If OCR failed to extract\nanything for this page, use the contextual evidence to infer the parcel number.\nThe current page is primary.\nThe literal token \"OCR_MISSING\" means that a page exists but OCR extracted no\nusable text for the target region.\n\nNeighboring pages may refer to:\n- the same parcel\n- a parcel identifier with a trailing letter\n- the previous or next parcel\n- a completely different parcel\n\nIn the majority of cases within a block folder, pages are ordered by increasing\nparcel number. Therefore, if the current page OCR is ambiguous, use up to two\nneighbors on each side to judge what values are plausible in sequence.\nAs a last resort, infer whether the current parcel is likely the same as, one\nhigher than, or one lower than nearby neighbors.\nDo not copy a neighbor parcel number unless that is the only plausible interpretation.\nIf the OCR text and the sequential pattern disagree, prefer the OCR text unless\nit is too ambiguous to trust.\nReturn low confidence when still uncertain.\n\nCorrect block number: 6\nFor this block, the only possible parcel numbers are: 1-25.No non-numeric or alphanumeric parcel values are possible for this block. DO NOT RETURN a parcel number containing a letter.If the OCR text indicates a parcel number containing a letter, that is in conflict with this instruction, and you should remove the letter and return only the numeric part.\n\n[Extraction target]: Current page text: \"Parcel No. IBLK 6\"\n\n[Contextual evidence]: Previous 2 page text: \"Parcel No. 10 BCK 6 House (A)\"\n[Contextual evidence]: Previous 1 page text: \"Parcel No. 6 BLK 6 (B\"\n[Contextual evidence]: Next 1 page text: \"Parcel No. 8 Blk 6 (A)\"\n[Contextual evidence]: Next 2 page text: \"Parcel No. 6 ( B) 8 BLK\"\n\n\nReturn ONLY a single JSON object with exactly these keys (no markdown, no code\nfences, no explanation before or after):\n{\n  \"parcel\": \"string\",\n  \"block\": \"string\",\n  \"confidence\": \"high/medium/low\"\n}",
+  "raw_result_item": {
+    "custom_id": "stage3__B6__29_jpg",
+    "result": {
+      "type": "succeeded",
+      "message": {
+        "model": "claude-sonnet-4-6",
+        "id": "msg_017WsLdoqh6MDhemHEGbzA1c",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Looking at the current page: \"Parcel No. IBLK 6\"\n\nThe \"I\" before \"BLK\" is likely OCR noise or a misread parcel number. Let me consider the sequence:\n- Previous 2: Parcel 10\n- Previous 1: Parcel 6\n- Current: \"IBLK 6\" — \"I\" could be parcel \"1\" (I↔1 confusion)\n- Next 1: Parcel 8\n- Next 2: Parcel 6 (B) / 8\n\nThe sequence Previous 1 = 6, Next 1 = 8 suggests current could be 7. However, \"I\" being misread as \"1\" is a strong OCR confusion, giving parcel 1 — but that doesn't fit the sequence at all.\n\n\"I\" → \"7\" is not a typical OCR confusion. But \"I\" could be a stray artifact, leaving no parcel number visible. Sequentially, between parcel 6 and parcel 8, parcel 7 is the most plausible. However, \"I\" as \"1\" → parcel \"1\" doesn't fit. The most natural reading with OCR confusion is that \"I\" = \"1\" but sequentially 7 fits better.\n\nGiven the neighbors (prev=6, next=8), parcel 7 fits perfectly in sequence. The \"I\" token is likely a misread \"7\" (OCR confusion of \"7\" → \"I\" is plausible in some fonts).\n\n{\"parcel\": \"7\", \"block\": \"6\", \"confidence\": \"medium\"}"
+          }
+        ],
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "stop_details": null,
+        "usage": {
+          "input_tokens": 1030,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 379,
+          "service_tier": "batch",
+          "inference_geo": "global"
+        }
+      }
+    }
+  },
+  "raw_output_text": "Looking at the current page: \"Parcel No. IBLK 6\"\n\nThe \"I\" before \"BLK\" is likely OCR noise or a misread parcel number. Let me consider the sequence:\n- Previous 2: Parcel 10\n- Previous 1: Parcel 6\n- Current: \"IBLK 6\" — \"I\" could be parcel \"1\" (I↔1 confusion)\n- Next 1: Parcel 8\n- Next 2: Parcel 6 (B) / 8\n\nThe sequence Previous 1 = 6, Next 1 = 8 suggests current could be 7. However, \"I\" being misread as \"1\" is a strong OCR confusion, giving parcel 1 — but that doesn't fit the sequence at all.\n\n\"I\" → \"7\" is not a typical OCR confusion. But \"I\" could be a stray artifact, leaving no parcel number visible. Sequentially, between parcel 6 and parcel 8, parcel 7 is the most plausible. However, \"I\" as \"1\" → parcel \"1\" doesn't fit. The most natural reading with OCR confusion is that \"I\" = \"1\" but sequentially 7 fits better.\n\nGiven the neighbors (prev=6, next=8), parcel 7 fits perfectly in sequence. The \"I\" token is likely a misread \"7\" (OCR confusion of \"7\" → \"I\" is plausible in some fonts).\n\n{\"parcel\": \"7\", \"block\": \"6\", \"confidence\": \"medium\"}",
+  "parsed_output": {
+    "parcel": "7",
+    "block": "6",
+    "confidence": "medium"
+  },
+  "parse_error": null
+}

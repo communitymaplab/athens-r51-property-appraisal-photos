@@ -1,4 +1,15 @@
-ocr-api-output/
+# ocr-api-output/
 *.csv
 .DS_Store
-
+.pyc
+.idea
+pipeline/.vscode/*
+__pycache__/*
+*.pyc
+*.env
+test*.txt
+# data/*/processed/*
+# data/*/roboflow_workflow/*
+# data/*/stage3_claude/*
+*.DS_Store
+.vscode/settings.json
