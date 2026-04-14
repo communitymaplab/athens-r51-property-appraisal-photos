@@ -19,4 +19,7 @@ merged_photos = pd.concat([Bradberry_1962_photos, Diaz_1964_photos])
 
 merged_photos = merged_photos.assign(parcel=merged_photos['parcel'].str.split(',')).explode('parcel')
 
+merged_photos['block'] = 'B' + merged_photos['block'].astype(str)
+merged_photos['parcel'] = 'P' + merged_photos['parcel'].astype(str)
+
 merged_photos.to_csv("data/merged_photos.csv", index=False)
