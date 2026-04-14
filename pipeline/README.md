@@ -117,3 +117,4 @@ The CSV includes `image_path`, `file_name`, `block_number`, `classification`, `e
 
 - Delete `/pipeline/data/Bradberry appraisals 1962/processed/B5/B5_P15__photo1.jpg` as it's not a real photo - placeholder image due to image 57 being broken on DLG here `https://dlg.usg.edu/record/guan_1633_055-006?canvas=56&x=400&y=400&w=1946`
 - Manually rename `/pipeline/data/Bradberry appraisals 1962/processed/B8/B8__67_jpg__photo1.jpg` to `B8_P12__photo4.jpg` 
+- Run `scripts/merge_photo_csvs.py` to merge the photo,block,parcel csvs from each set

@@ -1,5 +1,5 @@
 # ocr-api-output/
-*.csv
+# *.csv
 .DS_Store
 .pyc
 .idea
