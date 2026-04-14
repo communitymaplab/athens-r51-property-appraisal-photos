@@ -7,6 +7,7 @@ Bradberry_1962_photos["path"] = "https://raw.githubusercontent.com/communitymapl
 Bradberry_1962_photos = Bradberry_1962_photos[
     ~Bradberry_1962_photos["path"].str.contains("B5_P15__photo1.jpg", na=False)
 ]
+
 # Replace B8__67_jpg__photo1.jpg with B8_P12__photo4.jpg
 Bradberry_1962_photos.loc[Bradberry_1962_photos["path"].str.contains("B8__67_jpg__photo1.jpg", na=False), "parcel"] = "12"
 Bradberry_1962_photos["path"] = Bradberry_1962_photos["path"].str.replace("B8__67_jpg__photo1.jpg", "B8_P12__photo4.jpg")
@@ -14,6 +15,10 @@ Bradberry_1962_photos["path"] = Bradberry_1962_photos["path"].str.replace("B8__6
 Diaz_1964_photos = pd.read_csv("data/Diaz appraisals 1964/processed_photos.csv")
 # add prefix to path
 Diaz_1964_photos["path"] = "https://raw.githubusercontent.com/communitymaplab/athens-r51-property-appraisal-photos/refs/heads/main/pipeline/data/Diaz%20appraisals%201964/processed/" + Diaz_1964_photos["path"]
+# Delete B12_P14__photo3.jpg (see README)
+Diaz_1964_photos = Diaz_1964_photos[
+    ~Diaz_1964_photos["path"].str.contains("B12_P14__photo3.jpg", na=False)
+]
 
 merged_photos = pd.concat([Bradberry_1962_photos, Diaz_1964_photos])
 
