@@ -672,10 +672,10 @@ def run_full_pipeline(
         photos_csv_path.parent.mkdir(parents=True, exist_ok=True)
         photos_csv_file = photos_csv_path.open("w", newline="", encoding="utf-8")
         photos_row_writer = csv.writer(photos_csv_file)
-        photos_row_writer.writerow(["path", "block", "parcel"])
+        photos_row_writer.writerow(["path", "block", "parcel", "source_page_number"])
 
     def on_processed_photo_saved(
-        rel: str, block: str | None, parcel: str | None
+        rel: str, block: str | None, parcel: str | None, source_page_number: str | None
     ) -> None:
         if photos_row_writer is None or photos_csv_file is None:
             return
@@ -684,6 +684,7 @@ def run_full_pipeline(
                 rel,
                 block if block is not None else "",
                 parcel if parcel is not None else "",
+                source_page_number if source_page_number is not None else "",
             ]
         )
         photos_csv_file.flush()

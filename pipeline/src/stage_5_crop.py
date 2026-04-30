@@ -7,7 +7,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-OnProcessedPhotoSaved = Callable[[str, str | None, str | None], None]
+OnProcessedPhotoSaved = Callable[[str, str | None, str | None, str | None], None]
 
 from PIL import Image
 
@@ -164,11 +164,13 @@ def _filename_core_from_block_parcel(block: str, parcel: Any) -> str:
 
 def _row_for_processed_photo(
     dest: Path,
+    image_path: Path,
     output_dir: Path,
     extracted_id: dict[str, Any] | None,
     page_block_number: str | None,
-) -> tuple[str, str | None, str | None]:
+) -> tuple[str, str | None, str | None, str | None]:
     rel = dest.relative_to(output_dir).as_posix()
+    source_page_number = image_path.stem or None
     if extracted_id is not None:
         b = extracted_id.get("block")
         p = extracted_id.get("parcel")
@@ -178,9 +180,9 @@ def _row_for_processed_photo(
             if p is not None and str(p).strip()
             else None
         )
-        return rel, block_s, parcel_s
+        return rel, block_s, parcel_s, source_page_number
     # No extracted_id dict (cache_key filenames): block comes from the page artifact.
-    return rel, page_block_number, None
+    return rel, page_block_number, None, source_page_number
 
 
 def _allocate_photo_dest(
@@ -232,8 +234,8 @@ def crop_and_save_regions(
     ``bbox_margin``: expand each crop by this many pixels on every side before
     clamping to the image (nested dedupe still uses margin=0).
 
-    ``on_processed_photo_saved``: called with ``(path, block, parcel)`` for each
-    saved file; ``path`` is relative to ``output_dir`` (processed root).
+    ``on_processed_photo_saved``: called with ``(path, block, parcel, source_page_number)``
+    for each saved file; ``path`` is relative to ``output_dir`` (processed root).
 
     ``page_block_number``: block from the scan layout (``PageArtifact.block_number``);
     used for the CSV row when ``extracted_id`` is ``None``.
@@ -261,7 +263,7 @@ def crop_and_save_regions(
         if on_processed_photo_saved is not None:
             on_processed_photo_saved(
                 *_row_for_processed_photo(
-                    dest, output_dir, extracted_id, page_block_number
+                    dest, image_path, output_dir, extracted_id, page_block_number
                 )
             )
     else:
@@ -292,7 +294,11 @@ def crop_and_save_regions(
                 if on_processed_photo_saved is not None:
                     on_processed_photo_saved(
                         *_row_for_processed_photo(
-                            dest, output_dir, extracted_id, page_block_number
+                            dest,
+                            image_path,
+                            output_dir,
+                            extracted_id,
+                            page_block_number,
                         )
                     )
 
